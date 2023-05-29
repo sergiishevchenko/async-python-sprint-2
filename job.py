@@ -25,6 +25,9 @@ class Job:
         self.kwargs = kwargs if kwargs is not None else {}
         self.is_start_datetime()
 
+    def set_next_time(self) -> None:
+        self.start_at += self.time_delta
+
     def run(self):
         try:
             return self.fn(*self.args, **self.kwargs)
