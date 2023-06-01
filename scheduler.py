@@ -1,7 +1,7 @@
 import datetime
 import json
 import time
-from typing import Optional
+from typing import Optional, List
 
 from coroutine import coroutine
 from job import Job, JobStatus
@@ -33,7 +33,7 @@ class Scheduler:
         self.tasks.append(task)
         logger.info('Задача добавлена в Scheduler.')
 
-    def get_or_create_job(self, task_id, fn_name, args, kwargs, start_at, max_working_time, tries, status, dependencies) -> Job:
+    def get_or_create_job(self, task_id, fn_name, args, kwargs, start_at, max_working_time, tries, status, dependencies) -> List[Job]:
         job = self.get_tasks_with_status(task_id)
         if job:
             return job
@@ -46,12 +46,6 @@ class Scheduler:
         while self.is_active_scheduler:
             self.tasks.sort()
             if self.tasks[0].status == JobStatus.IN_QUEUE:
-                start_at_time = self.tasks[0].start_at
-                time_to_task = start_at_time.timestamp() - datetime.datetime.now().timestamp()
-
-                if time_to_task > 0:
-                    time.sleep(time_to_task)
-
                 if self.tasks[0].is_task_completed() is False:
                     self.tasks[0].set_next_time()
 
