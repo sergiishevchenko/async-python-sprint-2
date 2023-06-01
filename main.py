@@ -1,4 +1,3 @@
-
 from scheduler import Scheduler
 from tests.conftest import create_tasks_for_tests
 
