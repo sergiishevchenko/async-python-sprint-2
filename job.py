@@ -1,4 +1,5 @@
 import datetime
+from typing import Union, Optional
 
 from enums import JobStatus
 from logger import get_logger
@@ -10,7 +11,7 @@ logger = get_logger('root')
 class Job:
     """Класс задачи для планировщика."""
 
-    def __init__(self, id, fn, args=None, kwargs=None, start_at=datetime.datetime.now(), max_working_time=None, tries=0, dependencies=[], status=JobStatus(0)):
+    def __init__(self, id, fn, args: tuple = tuple(), kwargs: dict = {}, start_at: Union[str, datetime.datetime] = '', max_working_time: int=0, tries: int=0, dependencies: Optional[list[str]] = None):
         self.id = id
         self.fn = fn
         self.fn_name = fn.__name__
@@ -20,7 +21,7 @@ class Job:
         self.dependencies = dependencies
         self.time_delta = datetime.timedelta(minutes=10)
         self.result = None
-        self.status = status
+        self.status = JobStatus.IN_QUEUE
         self.args = args if args is not None else []
         self.kwargs = kwargs if kwargs is not None else {}
         self.is_start_datetime()
