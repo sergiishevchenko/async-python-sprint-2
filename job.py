@@ -11,7 +11,17 @@ logger = get_logger('root')
 class Job:
     """Класс задачи для планировщика."""
 
-    def __init__(self, id, fn, args: tuple = tuple(), kwargs: dict = {}, start_at: Union[str, datetime.datetime] = '', max_working_time: int=0, tries: int=0, dependencies: Optional[list[str]] = None):
+    def __init__(
+            self,
+            id,
+            fn,
+            args: tuple = tuple(),
+            kwargs: dict = {},
+            start_at: Union[str, datetime.datetime] = '',
+            max_working_time: int = 0,
+            tries: int = 0,
+            dependencies: Optional[list[str]] = None
+        ):
         self.id = id
         self.fn = fn
         self.fn_name = fn.__name__
