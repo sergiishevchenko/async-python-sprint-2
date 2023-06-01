@@ -1,6 +1,6 @@
 import os
 
-from .yandex_weather_api import YandexWeatherAPI
+from yandex_weather_api import YandexWeatherAPI
 
 
 def task_test_0():
