@@ -104,7 +104,7 @@ class Scheduler:
                                            status=dependence.status,
                                            dependencies=dependence.dependencies))
             task_job = self.get_or_create_job(
-                job_id=task.id,
+                task_id=task.id,
                 fn_name=task.fn_name,
                 start_at=task.start_at,
                 max_working_time=task.max_working_time,
