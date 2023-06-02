@@ -1,66 +1,79 @@
-import datetime
-from typing import Union, Optional
+from datetime import datetime
+from multiprocessing import Process
+from threading import Thread, Timer
+from typing import Generator
+from uuid import uuid4
 
-from enums import JobStatus
+from coroutine import coroutine
 from logger import get_logger
+from tasks import run_task
+from utils import TIME_MASK
 
 
-logger = get_logger('root')
+logger = get_logger()
 
 
 class Job:
     """Класс задачи для планировщика."""
 
-    def __init__(
-            self,
-            id,
-            fn,
-            args: tuple = tuple(),
-            kwargs: dict = {},
-            start_at: Union[str, datetime.datetime] = '',
-            max_working_time: int = 0,
-            tries: int = 0,
-            dependencies: Optional[list[str]] = None
+    def __init__(self,
+                 task: str,
+                 uid: str = '',
+                 start_at: str = '',
+                 max_working_time: int = -1,
+                 tries: int = 0,
+                 dependencies: list = None
         ):
-        self.id = id
-        self.fn = fn
-        self.fn_name = fn.__name__
-        self.start_at = start_at
+        self.task = run_task(task)
+        if start_at:
+            self.start_at = datetime.strptime(start_at, TIME_MASK)
+        else:
+            self.start_at = None
+        self.uid = uid if uid else uuid4().hex
         self.max_working_time = max_working_time
         self.tries = tries
-        self.dependencies = dependencies
-        self.time_delta = datetime.timedelta(minutes=10)
-        self.result = None
-        self.status = JobStatus.IN_QUEUE
-        self.args = args if args is not None else []
-        self.kwargs = kwargs if kwargs is not None else {}
-        self.is_start_datetime()
+        self.dependencies = dependencies or []
+        self.worker = None
 
-    def set_next_time(self) -> None:
-        self.start_at += self.time_delta
-
-    def run(self):
-        try:
-            return self.fn(*self.args, **self.kwargs)
-        except Exception as error:
-            logger.error('Ошибка - {}'.format(error))
-            return None
-
-    def pause(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def is_task_completed(self):
-        for task in self.dependencies:
-            if task.status == JobStatus.IS_COMPLETED:
-                continue
+    @staticmethod
+    def start_job(job: 'Job') -> None:
+        task_name = job.task.__name__
+        start_at = job.start_at
+        if job.start_at and job.start_at > datetime.now():
+            total_seconds = (job.start_at - datetime.now()).total_seconds()
+            worker = Timer(total_seconds, job.task)
+            worker.start()
+            logger.info('Задача "%s" запущена в: %s.', task_name, start_at)
+        else:
+            if job.max_working_time >= 0:
+                worker = Process(target=job.task)
+                worker.start()
+                worker.join(job.max_working_time)
+                if worker.is_alive():
+                    worker.terminate()
+                    logger.warning('Задача "%s" остановлена.', task_name)
             else:
-                return False
-        return True
+                worker = Thread(target=job.task)
+                worker.start()
+                worker.join()
+        job.worker = worker
 
-    def is_start_datetime(self):
-        for task in self.dependencies:
-            if task.start_at > self.start_at:
-                self.start_at = task.start_at + datetime.timedelta(minutes=1)
+    @staticmethod
+    @coroutine
+    def run() -> Generator[None, 'Job', None]:
+        while job := (yield):
+            try:
+                Job.start_job(job)
+            except GeneratorExit:
+                logger.info('Метод start_job() остановлен.')
+                raise
+            except Exception as error:
+                logger.error(error)
+                while job.tries > 0:
+                    job.tries -= 1
+                    task_name = job.task.__name__
+                    try:
+                        Job.start_job(job)
+                        logger.info('Задача "%s" успешно завершена.', task_name)
+                    except Exception as error:
+                        logger.error(error)
