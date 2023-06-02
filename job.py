@@ -25,6 +25,7 @@ class Job:
                  dependencies: list = None
         ):
         self.task = run_task(task)
+
         if start_at:
             self.start_at = datetime.strptime(start_at, TIME_MASK)
         else:
@@ -51,7 +52,7 @@ class Job:
                 worker.join(job.max_working_time)
                 if worker.is_alive():
                     worker.terminate()
-                    logger.warning('Задача "%s" остановлена.', task_name)
+                    logger.info('Задача "%s" остановлена.', task_name)
             else:
                 worker = Thread(target=job.task)
                 worker.start()
@@ -67,13 +68,13 @@ class Job:
             except GeneratorExit:
                 logger.info('Метод start_job() остановлен.')
                 raise
-            except Exception as error:
-                logger.error(error)
+            except Exception as err:
+                logger.error(err)
                 while job.tries > 0:
                     job.tries -= 1
                     task_name = job.task.__name__
                     try:
                         Job.start_job(job)
                         logger.info('Задача "%s" успешно завершена.', task_name)
-                    except Exception as error:
-                        logger.error(error)
+                    except Exception as err:
+                        logger.error(err)
