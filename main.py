@@ -1,24 +1,32 @@
+from job import Job
 from scheduler import Scheduler
-from tests.conftest import create_tasks_for_tests
+from utils import DELAY_TIME
 
 
-def restart_scheduler(scheduler) -> None:
-    scheduler.restart()
+if __name__ == '__main__':
+    scheduler = Scheduler(pool_size=8)
 
+    create_folder = Job('create_folder', start_at=DELAY_TIME)
+    delete_folder = Job('delete_folder', dependencies=[create_folder])
 
-def stop_scheduler(scheduler) -> None:
-    create_tasks_for_tests(scheduler)
+    create_file = Job('create_file')
+    write_down_to_file = Job('write_down_to_file')
+    read_from_file = Job('read_from_file', tries=3, dependencies=[create_file])
+    delete_file = Job('delete_file', dependencies=[create_file, write_down_to_file, read_from_file])
 
-    scheduler.stop()
+    get_forecasts = Job('get_forecasts')
 
+    # ставим задачи в очередь с помощью метода schedule_tasks
+    scheduler.schedule_tasks([
+        create_folder,
+        delete_folder,
 
-def main():
-    scheduler = Scheduler()
-    stop_scheduler(scheduler)
+        create_file,
+        write_down_to_file,
+        read_from_file,
+        delete_file,
 
-    scheduler = Scheduler()
-    restart_scheduler(scheduler)
+        get_forecasts
+    ])
 
-
-if __name__ == "__main__":
-    main()
+    scheduler.run()
