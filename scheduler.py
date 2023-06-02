@@ -46,11 +46,12 @@ class Scheduler:
         for job in jobs:
             self.queue.append(job)
             task_name = job.task.__name__
+            start_at = job.start_at
             if self.pool_size < len(self.queue):
                 logger.error('Очередь заполнена.')
                 continue
             if job.start_at and job.start_at > datetime.now():
-                logger.warning('Задача "%s" добавлена в %s', task_name, job.start_at)
+                logger.info('Задача "%s" добавлена в %s', task_name, start_at)
             else:
                 logger.info('Задача "%s" добавлена в schedule_tasks', task_name)
 
