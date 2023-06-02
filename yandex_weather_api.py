@@ -4,7 +4,7 @@ from http import HTTPStatus
 from logger import get_logger
 from urllib.error import HTTPError
 from urllib.request import urlopen
-from utils import ERR_MESSAGE_TEMPLATE, get_url_by_city_name
+from utils import ERR_MESSAGE_TEMPLATE, CITIES
 
 
 logger = get_logger('root')
@@ -15,7 +15,8 @@ class YandexWeatherAPI:
     Base class for requests
     """
 
-    def __do_req(url: str) -> str:
+    @staticmethod
+    def _do_req(url: str) -> str:
         """Base request method"""
         try:
             with urlopen(url) as response:
@@ -32,7 +33,5 @@ class YandexWeatherAPI:
             logger.error(error)
             raise Exception(ERR_MESSAGE_TEMPLATE.format(error=error))
 
-    @staticmethod
-    def get_forecasting(city: str):
-        url = get_url_by_city_name(city)
-        return YandexWeatherAPI.__do_req(url)
+    def get_forecasting(self):
+        return self._do_req(CITIES['PARIS'])
