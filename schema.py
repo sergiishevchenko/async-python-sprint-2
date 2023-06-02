@@ -1,23 +1,24 @@
-import datetime
-
 from pydantic import BaseModel
-from typing import Optional
-from uuid import UUID
-
-from job import JobStatus
 
 
-class TaskDetailSchema(BaseModel):
-    id: UUID
-    fn_name: str
-    args: list
-    kwargs: dict
-    start_at: datetime.datetime
-    max_working_time: Optional[int]
+class TaskSchema(BaseModel):
+    name: str
+    start_at: str
+    max_working_time: int
     tries: int
-    status: JobStatus
     dependencies: list
 
 
-class TaskSchema(TaskDetailSchema):
-    dependencies: list[TaskDetailSchema]
+class WeatherDetailSchema(BaseModel):
+    hour: str
+    temp: int
+    condition: str
+
+
+class WeatherSchema(BaseModel):
+    date: str
+    hours: list[WeatherDetailSchema]
+
+
+class ForecastSchema(BaseModel):
+    forecasts: list[WeatherSchema]
