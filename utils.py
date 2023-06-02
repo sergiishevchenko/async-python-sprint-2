@@ -1,3 +1,8 @@
+import json
+
+from datetime import datetime, timedelta
+
+
 CITIES = {
     "MOSCOW": "https://code.s3.yandex.net/async-module/moscow-response.json",
     "PARIS": "https://code.s3.yandex.net/async-module/paris-response.json",
@@ -24,6 +29,17 @@ MIN_MAJOR_PYTHON_VER = 3
 MIN_MINOR_PYTHON_VER = 9
 ERR_MESSAGE_TEMPLATE = "Unexpected error: {error}"
 
+RANDOM_FILE_NAME = 'results.txt'
+RANDOM_FOLDER_NAME = 'new folder'
+JOBS_FILE_NAME = 'file_with_jobs.json'
+
+TIME_MASK = '%d.%m.%Y %H:%M:%S'
+
+NEXT_TIME = datetime.now() + timedelta(seconds=5)
+DELAY_TIME = NEXT_TIME.strftime(TIME_MASK)
+
+DEFAULT_DURATION = 0.1
+
 
 def check_python_version():
     import sys
@@ -44,3 +60,26 @@ def get_url_by_city_name(city_name):
         return CITIES[city_name]
     except KeyError:
         raise Exception("Please check that city {} exists".format(city_name))
+
+
+def get_job_data(job):
+    start_at = job.start_at or ''
+    if isinstance(start_at, datetime):
+        start_at = start_at.strftime(TIME_MASK)
+    return {'name': job.task.__name__, 'start_at': start_at, 'max_working_time': job.max_working_time, 'tries': job.tries, 'dependencies': []}
+
+
+def load_json() -> dict:
+    try:
+        with open(JOBS_FILE_NAME, 'r', encoding='UTF-8') as file:
+            try:
+                return json.load(file)
+            except ValueError:
+                return {}
+    except EnvironmentError:
+        return {}
+
+
+def save_data_in_json(job: dict) -> None:
+    with open(JOBS_FILE_NAME, 'w', encoding='UTF-8') as file:
+        json.dump(job, file)
