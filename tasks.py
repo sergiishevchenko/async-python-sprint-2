@@ -6,7 +6,7 @@ from schema import ForecastSchema
 from utils import RANDOM_FOLDER_NAME, RANDOM_FILE_NAME
 from yandex_weather_api import YandexWeatherAPI
 
-logger = get_logger()
+logger = get_logger('root')
 
 
 def create_folder() -> None:

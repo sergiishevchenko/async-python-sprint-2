@@ -6,7 +6,7 @@ from logger import get_logger
 from schema import TaskSchema
 from utils import get_job_data, load_json, save_data_in_json
 
-logger = get_logger()
+logger = get_logger('root')
 
 
 class Scheduler:

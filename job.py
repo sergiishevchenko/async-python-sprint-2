@@ -10,7 +10,7 @@ from tasks import run_task
 from utils import TIME_MASK
 
 
-logger = get_logger()
+logger = get_logger('root')
 
 
 class Job:
