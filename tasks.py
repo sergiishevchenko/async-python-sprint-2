@@ -76,7 +76,7 @@ tasks = {
     'delete_folder': delete_folder,
 
     'create_file': create_file,
-    'write_to_file': write_down_to_file,
+    'write_down_to_file': write_down_to_file,
     'read_from_file': read_from_file,
     'delete_file': delete_file,
 
