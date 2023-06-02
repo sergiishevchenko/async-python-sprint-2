@@ -50,3 +50,16 @@
 
 Схематично сервис представлен на [диаграмме](schema.png).
 ![image](schema.png)
+
+## Запуск проекта
+
+Для запуска проекта выполните команды в следующем порядке:
+```
+python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+python3 main.py
+```
+
+Для запуска тестов выполните следующую команду:
+```
+python3 -m unittest tests/tests.py
+```
