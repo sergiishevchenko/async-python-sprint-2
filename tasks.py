@@ -15,7 +15,7 @@ def create_folder() -> None:
         if not path.is_dir():
             path.mkdir()
             logger.info('Папка создана - %s.', path)
-    logger.info('Папка создана')
+    logger.info('Папки созданы.')
 
 
 def delete_folder() -> None:
@@ -23,8 +23,8 @@ def delete_folder() -> None:
         path = Path(f'{RANDOM_FOLDER_NAME} {i + 1}')
         if path.is_dir():
             path.rmdir()
-            logger.info('Удаляем папку ... %s.', path)
-    logger.info('Папка удалена!')
+            logger.info('Удаляем папку - %s.', path)
+    logger.info('Папки удалены!')
 
 
 def create_file() -> None:
@@ -36,7 +36,7 @@ def create_file() -> None:
 
 def write_down_to_file() -> None:
     with open(RANDOM_FILE_NAME, 'a', encoding='UTF-8') as file:
-        file.writelines(['Lorem {i + 1}\n' for i in range(10)])
+        file.writelines([f'Текст номер {i + 1}\n' for i in range(10)])
     logger.info('Запись в файл окончена.')
 
 
@@ -54,14 +54,14 @@ def delete_file() -> None:
     path = Path(RANDOM_FILE_NAME)
     if path.is_file():
         path.unlink()
-        logger.info('Удаляем файл ... %s.', path)
+        logger.info('Удаляем файл - %s.', path)
     logger.info('Файл удалён!')
 
 
 def get_forecasts() -> None:
     try:
         forecasts = ForecastSchema.parse_obj(YandexWeatherAPI().get_forecasting())
-        logger.info('Данные извлечены.')
+        logger.info('Данные для Парижа извлечены.')
     except Exception as err:
         logger.error(err)
     logger.info('Прогноз погоды извлечён.')
@@ -72,13 +72,11 @@ def run_task(task: str) -> Callable:
 
 
 tasks = {
-    'create_folder': create_folder,
-    'delete_folder': delete_folder,
-
-    'create_file': create_file,
+    'create_folder':      create_folder,
+    'delete_folder':      delete_folder,
+    'create_file':        create_file,
     'write_down_to_file': write_down_to_file,
-    'read_from_file': read_from_file,
-    'delete_file': delete_file,
-
-    'get_forecasts': get_forecasts
+    'read_from_file':     read_from_file,
+    'delete_file':        delete_file,
+    'get_forecasts':      get_forecasts
 }
